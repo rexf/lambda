@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Coder Text</title>
+</head>
+<body>
+<script>
+
+    var ws = null;
+
+    function writeOutput(msg) {
+        var value = document.getElementById("output").value ;
+        document.getElementById("output").value = new Date().toLocaleString()+" "+msg + "\n" + value;
+    }
+
+    function hookWs() {
+        ws = new WebSocket("ws://localhost:8889");
+        ws.onopen = function (event) {
+            writeOutput("Connected to server.");
+        }
+        ws.onmessage = function (event) {
+            writeOutput( event.data );
+        }
+        ws.onerror = function (event) {
+            ws = null;
+            writeOutput("ws error. closing ws.");
+            ws.close();
+        }
+        ws.onclose = function (event) {
+            ws = null;
+            writeOutput("closed. reconnecting...");
+            setTimeout(hookWs, 5000);
+        }
+    }
+
+    function sendCommand(cmd, btn) {
+        btn.disabled = true;
+        if (null == ws) {
+            setTimeout(sendCommand, 5000, cmd, btn);
+            return;
+        }
+        var json = new Object();
+        json["command"] = cmd;
+        btn.disabled = false;
+        ws.send(json);
+
+    }
+
+
+    function sendFile() {
+        document.getElementById("btnSubmit").disabled = true;
+        document.getElementById("btnSubmit").textContent = "Sending...";
+        if (null == ws) {
+            setTimeout(sendFile, 5000);
+            return;
+        }
+        var file = document.getElementById('code').files[0];
+        ws.binaryType = "arraybuffer";
+        ws.send(file);
+        document.getElementById("btnSubmit").disabled = false;
+        document.getElementById("btnSubmit").textContent = "Submit code";
+    }
+
+    hookWs();
+
+</script>
+Hello!
+<br>
+<input type="file" id="code" name="file">
+<input type="button" id="btnSubmit" value="Submit code" onclick="sendFile();">
+
+<br>
+<br>
+<br>
+Log:
+<br>
+<textarea readonly="true" id="output" cols="100" rows="30"></textarea>
+<br>
+<input type="button" id="btnClear" value="Clear" onclick="document.getElementById('output').value=''">
+
+</body>
+</html>

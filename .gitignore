@@ -1,0 +1,9 @@
+.idea/
+.git/
+.vertx/
+log/
+tmp/
+data/
+*.zip
+*.log
+
