@@ -4,6 +4,7 @@
 log/
 tmp/
 data/
+test/
 *.zip
 *.log
 

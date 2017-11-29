@@ -23,22 +23,23 @@ import java.net.URLClassLoader
 import java.nio.charset.Charset
 import java.nio.file.Files
 import java.nio.file.Paths
+import kotlin.properties.Delegates
 
 
-class LambdaContainer(private val dispatcher: IDispatcher,
-                      private val clock: IClock,
+class LambdaContainer(val dispatcher: IDispatcher,
+                      val clock: IClock,
                       private val httpPort: Int,
                       private val wsPort: Int) : AbstractVerticle() {
     companion object {
         val logger = LogManager.getLogger(LambdaContainer::class)
     }
 
-    private var algoFramework: IAlgoFramework? = null
+    private var algoFramework: IAlgoFramework by Delegates.notNull()
     private val setOfWs = mutableSetOf<ServerWebSocket>()
 
     override fun start() {
         super.start()
-        algoFramework = AlgoFramework(vertx = vertx, timer = clock)
+        algoFramework = AlgoFramework(this)
 
         val router = Router.router(vertx)
         router.route().handler(BodyHandler.create().setUploadsDirectory("uploads").setDeleteUploadedFilesOnEnd(true))
@@ -63,13 +64,9 @@ class LambdaContainer(private val dispatcher: IDispatcher,
             vertx.executeBlocking<String>({ future ->
                 try {
                     sendText("source code received. size = ${code.length}, compiling...")
-                    algoFramework!!.algoController.lastModified = clock.getTime()
-                    algoFramework!!.algoController.clazzName = ""
-                    algoFramework!!.algoController.code = code
-
-                    algoFramework!!.algoController.state = AlgoState.Initializing
 
                     compileKotlin(code)
+                    algoFramework.algo.state = AlgoState.Initialized
 
                     future.complete("loaded.")
                 } catch (t: Throwable) {
@@ -82,7 +79,7 @@ class LambdaContainer(private val dispatcher: IDispatcher,
                 println(result.result())
                 if (result.succeeded()) {
                     sendText("Running performance test")
-                    perfTest(algo = algoFramework!!.algoController.algo!!, framework = algoFramework!!)
+                    perfTest(algo = algoFramework.algo, framework = algoFramework)
                     sendText("performance test done")
                 }
             })
@@ -114,47 +111,37 @@ class LambdaContainer(private val dispatcher: IDispatcher,
     }
 
     private fun compileKotlinClass(code: String) {
-        algoFramework?.let {
-            val tmpPath = "/tmp/Example.kt/"
-            File(tmpPath).deleteOnExit()
-            File(tmpPath + "/inp/").mkdirs()
-            File(tmpPath + "/out/").mkdirs()
+        val tmpPath = "/tmp/Example.kt/"
+        File(tmpPath).deleteOnExit()
+        File(tmpPath + "/inp/").mkdirs()
+        File(tmpPath + "/out/").mkdirs()
 
-            val inp = tmpPath + "/inp/Example.kt"
-            val out = tmpPath + "/out/"
-            with(File(inp)) {
-                createNewFile()
-                writeText(code, Charset.defaultCharset())
-                deleteOnExit()
-            }
-
-            KotlinCompiler.compile(inp, out)
-            File(out).deleteOnExit()
-
-            val clazz = URLClassLoader(listOf(URL("file://$out")).toTypedArray()).loadClass("Example")
-            it.algoController.algo = clazz.newInstance() as IAlgo
-
+        val inp = tmpPath + "/inp/Example.kt"
+        val out = tmpPath + "/out/"
+        with(File(inp)) {
+            createNewFile()
+            writeText(code, Charset.defaultCharset())
+            deleteOnExit()
         }
+
+        KotlinCompiler.compile(inp, out)
+        File(out).deleteOnExit()
+
+        val clazz = URLClassLoader(listOf(URL("file://$out")).toTypedArray()).loadClass("Example")
+        algoFramework.algo = clazz.newInstance() as IAlgo
 
     }
 
     private fun compileKotlin(code: String) {
-        algoFramework?.let {
-            with(it.algoController) {
-                state = AlgoState.Initializing
-                try {
-                    algo = KotlinAlgoLoader(code)
+        try {
+            algoFramework.algo = KotlinAlgoLoader(code)
+            algoFramework.algo.state = AlgoState.Initialized
 
-                    start()
-                    state = AlgoState.Initialized
-
-                    return
-                } catch (t: Throwable) {
-                    t.printStackTrace()
-                }
-                state = AlgoState.InitializationFailed
-            }
+            return
+        } catch (t: Throwable) {
+            t.printStackTrace()
         }
+        algoFramework.algo.state = AlgoState.InitializationFailed
 
     }
 
@@ -162,7 +149,7 @@ class LambdaContainer(private val dispatcher: IDispatcher,
     private fun perfTest(algo: IAlgo, framework: IAlgoFramework) {
         val now = System.currentTimeMillis()
         for (i in 1..10_000_000) {
-            algo.handleTick(framework, 1.0, 2.0)
+            algo.handleEvent?.invoke()
         }
         framework.sendText("Time spent: ${System.currentTimeMillis() - now}")
     }

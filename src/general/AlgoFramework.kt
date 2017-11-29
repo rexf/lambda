@@ -1,19 +1,24 @@
 package general
 
+import container.LambdaContainer
+import general.spec.IAlgo
 import general.spec.IAlgoFramework
 import general.spec.IExecution
-import general.spec.IMarketData
 import general.spec.IPosition
 import io.vertx.core.Vertx
 import io.vertx.core.json.JsonObject
 import scheduler.IClock
 import java.util.function.BiConsumer
 import java.util.function.Consumer
+import kotlin.properties.Delegates
 
-class AlgoFramework(private val vertx: Vertx, override val timer: IClock) : IAlgoFramework {
-    override var algoController = AlgoController(framework = this, lastModified = timer.getTime(), clazzName = "")
+class AlgoFramework(private val lambda: LambdaContainer) : IAlgoFramework {
+    override val clock: IClock
+        get() = lambda.clock
 
-    override fun subscribeMarketData(param: JsonObject, consumer: BiConsumer<IAlgoFramework, IMarketData>?) {
+    override var algo: IAlgo by Delegates.notNull()
+
+    override fun subscribeMarketData(vararg rics: String) {
 
     }
 
@@ -30,7 +35,7 @@ class AlgoFramework(private val vertx: Vertx, override val timer: IClock) : IAlg
     }
 
     override fun setOnce(consumer: Consumer<IAlgoFramework>, delayInMs: Long) {
-        vertx.setTimer(delayInMs, { consumer.accept(this) })
+//        vertx.setTimer(delayInMs, { consumer.accept(this) })
     }
 
     override fun sendMessage(message: Any) {
@@ -38,17 +43,10 @@ class AlgoFramework(private val vertx: Vertx, override val timer: IClock) : IAlg
     }
 
 
-    init {
-        vertx.setPeriodic(15000, {
-            sendText("State: " + algoController.state.description)
-        })
-
-    }
-
-    override fun sendText(msg: String) {
+    override fun sendText(message: String) {
         val json = JsonObject()
-        json.put("Algo Message", msg)
-        vertx.eventBus().publish(JsonObject::class.qualifiedName, json)
+        json.put("Algo Message", message)
+        Vertx.vertx().eventBus().publish(JsonObject::class.qualifiedName, json)
     }
 
 }
