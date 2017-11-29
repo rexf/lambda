@@ -21,7 +21,7 @@ class KotlinCompiler {
                         .filter {
                             val path = Paths.get(it)
                             Files.exists(path) && Files.isReadable(path)
-                        }.joinToString(":")
+                        }.joinToString(System.getProperty("path.separator"))
                 noStdlib = true
                 noReflect = true
                 skipRuntimeVersionCheck = true

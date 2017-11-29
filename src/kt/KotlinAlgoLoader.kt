@@ -1,8 +1,7 @@
 package kt
 
-import general.spec.AlgoSpec
-import general.spec.IAlgo
-import general.spec.IAlgoFramework
+import general.AbstractAlgo
+import general.AlgoState
 import java.io.File
 import java.lang.reflect.Method
 import java.net.URL
@@ -11,15 +10,16 @@ import java.nio.charset.Charset
 import java.nio.file.Files
 import kotlin.properties.Delegates
 
-class KotlinAlgoLoader : IAlgo {
+class KotlinAlgoLoader : AbstractAlgo {
 
-    private var _code: String by Delegates.notNull()
+    //    private var _code: String by Delegates.notNull()
     private var mappedFunction: Map<String, Method> by Delegates.notNull()
 
-    private constructor()
+    private constructor() : super()
 
     constructor(code: String) : this() {
-        _code = code
+        state = AlgoState.Initializing
+
         val path = Files.createTempDirectory("kotlin_algo_")
         path.toFile().deleteOnExit()
         val tmpPath = path.toString()
@@ -50,23 +50,5 @@ class KotlinAlgoLoader : IAlgo {
                 mappedFunction = clazz.declaredMethods.associateBy({ it.name }, { it })
             }
         }
-    }
-
-    override fun onStart(framework: IAlgoFramework): Boolean {
-        try {
-            mappedFunction["algoMain"]?.invoke(null, framework)
-            return true
-        } catch (t: Throwable) {
-            t.printStackTrace()
-        }
-        return false
-    }
-
-    override fun onShutdown(framework: IAlgoFramework) {
-
-    }
-
-    override fun handleTick(framework: IAlgoFramework, bid: Double, ask: Double) {
-        AlgoSpec.handleTick?.invoke(framework)
     }
 }

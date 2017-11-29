@@ -1,7 +1,12 @@
 package general.spec
 
+import general.AlgoState
+import org.joda.time.DateTime
+
 interface IAlgo {
-    fun onStart(framework: IAlgoFramework): Boolean
-    fun onShutdown(framework: IAlgoFramework)
-    fun handleTick(framework: IAlgoFramework, bid: Double, ask: Double)
+    val code: String
+    val lastUpdated: DateTime
+    var state: AlgoState
+
+    var handleEvent: (() -> Unit)?
 }

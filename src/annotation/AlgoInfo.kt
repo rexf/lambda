@@ -1,9 +1,6 @@
 package annotation
 
-import java.lang.annotation.Retention
-import java.lang.annotation.RetentionPolicy
-
-@Retention(RetentionPolicy.RUNTIME)
+@kotlin.annotation.Retention(AnnotationRetention.RUNTIME)
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FILE)
 annotation class AlgoInfo(val mode: Mode = Mode.UAT, val activities: Array<Activity>)
 

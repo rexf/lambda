@@ -10,8 +10,8 @@
     var ws = null;
 
     function writeOutput(msg) {
-        var value = document.getElementById("output").value ;
-        document.getElementById("output").value = new Date().toLocaleString()+" "+msg + "\n" + value;
+        var value = document.getElementById("output").value;
+        document.getElementById("output").value = new Date().toLocaleString() + " " + msg + "\n" + value;
     }
 
     function hookWs() {
@@ -20,7 +20,7 @@
             writeOutput("Connected to server.");
         }
         ws.onmessage = function (event) {
-            writeOutput( event.data );
+            writeOutput(event.data);
         }
         ws.onerror = function (event) {
             ws = null;
