@@ -15,7 +15,7 @@
     }
 
     function hookWs() {
-        ws = new WebSocket("ws://localhost:8889");
+        ws = new WebSocket("ws://"+window.location.hostname+":8889");
         ws.onopen = function (event) {
             writeOutput("Connected to server.");
         }

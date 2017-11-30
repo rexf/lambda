@@ -85,40 +85,25 @@
     </build>
 
     <properties>
-        <slf4j.version>1.7.25</slf4j.version>
-        <kotlin.version>1.1.61</kotlin.version>
-        <qcloud.version>2.0.1</qcloud.version>
-        <guava.version>23.0</guava.version>
+        <kotlin.version>1.2.0</kotlin.version>
+        <guava.version>23.5-jre</guava.version>
         <vertx.version>3.5.0</vertx.version>
-        <springframework.version>5.0.1.RELEASE</springframework.version>
+        <joda.version>2.9.9</joda.version>
+        <apache.log4j.version>2.9.1</apache.log4j.version>
+        <springframework.version>5.0.2.RELEASE</springframework.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
-            <version>2.9.9</version>
+            <version>${joda.version}</version>
         </dependency>
-        <!--<dependency>-->
-        <!--<groupId>org.slf4j</groupId>-->
-        <!--<artifactId>slf4j-api</artifactId>-->
-        <!--<version>${slf4j.version}</version>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-        <!--<groupId>org.slf4j</groupId>-->
-        <!--<artifactId>slf4j-simple</artifactId>-->
-        <!--<version>${slf4j.version}</version>-->
-        <!--</dependency>-->
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
-            <version>2.9.1</version>
+            <version>${apache.log4j.version}</version>
         </dependency>
-        <!--<dependency>-->
-        <!--<groupId>org.apache.logging.log4j</groupId>-->
-        <!--<artifactId>log4j-api</artifactId>-->
-        <!--<version>2.9.1</version>-->
-        <!--</dependency>-->
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
@@ -131,7 +116,7 @@
         </dependency>
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
-            <artifactId>kotlin-stdlib-jre8</artifactId>
+            <artifactId>kotlin-stdlib</artifactId>
             <version>${kotlin.version}</version>
         </dependency>
         <dependency>
@@ -164,11 +149,6 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
             <version>${springframework.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.github.picadoh</groupId>
-            <artifactId>imc</artifactId>
-            <version>0.2</version>
         </dependency>
 
     </dependencies>

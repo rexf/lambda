@@ -2,6 +2,7 @@ package kt
 
 import general.AbstractAlgo
 import general.AlgoState
+import general.spec.IAlgoFramework
 import java.io.File
 import java.lang.reflect.Method
 import java.net.URL
@@ -17,7 +18,8 @@ class KotlinAlgoLoader : AbstractAlgo {
 
     private constructor() : super()
 
-    constructor(code: String) : this() {
+    constructor(fw: IAlgoFramework, code: String) : this() {
+        fw.algo = this
         state = AlgoState.Initializing
 
         val path = Files.createTempDirectory("kotlin_algo_")
@@ -48,6 +50,12 @@ class KotlinAlgoLoader : AbstractAlgo {
                 KotlinCompiler.compile(algoFile, outPath)
                 val clazz = URLClassLoader(listOf(URL("file://$outPath")).toTypedArray()).loadClass("AlgoKt")
                 mappedFunction = clazz.declaredMethods.associateBy({ it.name }, { it })
+                val initFunc = mappedFunction["algoMain"]
+                try {
+                    initFunc!!.invoke(null, fw)
+                } catch (t: Throwable) {
+                    t.printStackTrace()
+                }
             }
         }
     }

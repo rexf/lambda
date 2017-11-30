@@ -2,7 +2,6 @@ package container
 
 import general.AlgoFramework
 import general.AlgoState
-import general.spec.IAlgo
 import general.spec.IAlgoFramework
 import io.vertx.core.AbstractVerticle
 import io.vertx.core.Handler
@@ -11,15 +10,10 @@ import io.vertx.core.http.ServerWebSocket
 import io.vertx.core.json.JsonObject
 import io.vertx.ext.web.Router
 import io.vertx.ext.web.RoutingContext
-import io.vertx.ext.web.handler.BodyHandler
 import kt.KotlinAlgoLoader
-import kt.KotlinCompiler
 import org.apache.logging.log4j.LogManager
 import scheduler.IClock
 import thread.IDispatcher
-import java.io.File
-import java.net.URL
-import java.net.URLClassLoader
 import java.nio.charset.Charset
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -42,18 +36,27 @@ class LambdaContainer(val dispatcher: IDispatcher,
         algoFramework = AlgoFramework(this)
 
         val router = Router.router(vertx)
-        router.route().handler(BodyHandler.create().setUploadsDirectory("uploads").setDeleteUploadedFilesOnEnd(true))
+
+        // should not support file upload by GET/POST here
+        // router.route().handler(BodyHandler.create().setUploadsDirectory("uploads").setDeleteUploadedFilesOnEnd(true))
+
         router.get("/").handler(this::getRoot)
 
         vertx.eventBus().consumer(JsonObject::class.qualifiedName, Handler<Message<JsonObject>> {
             val msg = it.body().toString()
-            setOfWs.forEach { it.writeTextMessage(msg) }
+            setOfWs.forEach {
+                try {
+                    it.writeTextMessage(msg)
+                } catch (t : Throwable) {
+                    t.printStackTrace()
+                }
+            }
         })
 
 
         vertx.createHttpServer().requestHandler(router::accept).listen(httpPort)
         vertx.createHttpServer().websocketHandler(this::handleWS).listen(wsPort)
-        logger.info("Listening to port : Http( 8888 ) & Ws( 8889 )")
+        logger.info("Listening to port : Http( $httpPort) & Ws( $wsPort )")
     }
 
     private fun handleWS(sws: ServerWebSocket) {
@@ -65,7 +68,7 @@ class LambdaContainer(val dispatcher: IDispatcher,
                 try {
                     sendText("source code received. size = ${code.length}, compiling...")
 
-                    compileKotlin(code)
+                    loadKotlinAlgo(code)
                     algoFramework.algo.state = AlgoState.Initialized
 
                     future.complete("loaded.")
@@ -76,20 +79,18 @@ class LambdaContainer(val dispatcher: IDispatcher,
                 }
 
             }, { result ->
-                println(result.result())
+                logger.info(result.result())
                 if (result.succeeded()) {
                     sendText("Running performance test")
-                    perfTest(algo = algoFramework.algo, framework = algoFramework)
+                    perfTest(framework = algoFramework)
                     sendText("performance test done")
                 }
             })
-
         }
 
         sws.textMessageHandler {
-
+            // Do not expect text stream
             println("text stream: " + it)
-
         }
 
         sws.closeHandler {
@@ -110,46 +111,27 @@ class LambdaContainer(val dispatcher: IDispatcher,
         vertx.eventBus().publish(JsonObject::class.qualifiedName, json)
     }
 
-    private fun compileKotlinClass(code: String) {
-        val tmpPath = "/tmp/Example.kt/"
-        File(tmpPath).deleteOnExit()
-        File(tmpPath + "/inp/").mkdirs()
-        File(tmpPath + "/out/").mkdirs()
+    private fun loadKotlinAlgo(code: String) {
+        with(algoFramework) {
+            try {
+                algo = KotlinAlgoLoader(algoFramework, code)
 
-        val inp = tmpPath + "/inp/Example.kt"
-        val out = tmpPath + "/out/"
-        with(File(inp)) {
-            createNewFile()
-            writeText(code, Charset.defaultCharset())
-            deleteOnExit()
+                algo.state = AlgoState.Initialized
+
+
+                return
+            } catch (t: Throwable) {
+                t.printStackTrace()
+            }
+            algo.state = AlgoState.InitializationFailed
         }
-
-        KotlinCompiler.compile(inp, out)
-        File(out).deleteOnExit()
-
-        val clazz = URLClassLoader(listOf(URL("file://$out")).toTypedArray()).loadClass("Example")
-        algoFramework.algo = clazz.newInstance() as IAlgo
-
-    }
-
-    private fun compileKotlin(code: String) {
-        try {
-            algoFramework.algo = KotlinAlgoLoader(code)
-            algoFramework.algo.state = AlgoState.Initialized
-
-            return
-        } catch (t: Throwable) {
-            t.printStackTrace()
-        }
-        algoFramework.algo.state = AlgoState.InitializationFailed
-
     }
 
 
-    private fun perfTest(algo: IAlgo, framework: IAlgoFramework) {
+    private fun perfTest(framework: IAlgoFramework) {
         val now = System.currentTimeMillis()
         for (i in 1..10_000_000) {
-            algo.handleEvent?.invoke()
+            framework.algo.handleEvent?.invoke()
         }
         framework.sendText("Time spent: ${System.currentTimeMillis() - now}")
     }

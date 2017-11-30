@@ -18,4 +18,5 @@ interface IAlgoFramework {
 
     fun sendMessage(message: Any)
     fun sendText(message: String)
+    fun log(message: String)
 }

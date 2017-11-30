@@ -5,14 +5,17 @@ import general.spec.IAlgo
 import general.spec.IAlgoFramework
 import general.spec.IExecution
 import general.spec.IPosition
-import io.vertx.core.Vertx
 import io.vertx.core.json.JsonObject
+import org.apache.logging.log4j.LogManager
 import scheduler.IClock
 import java.util.function.BiConsumer
 import java.util.function.Consumer
 import kotlin.properties.Delegates
 
 class AlgoFramework(private val lambda: LambdaContainer) : IAlgoFramework {
+    companion object {
+        val logger = LogManager.getLogger(AlgoFramework::class)!!
+    }
     override val clock: IClock
         get() = lambda.clock
 
@@ -46,7 +49,12 @@ class AlgoFramework(private val lambda: LambdaContainer) : IAlgoFramework {
     override fun sendText(message: String) {
         val json = JsonObject()
         json.put("Algo Message", message)
-        Vertx.vertx().eventBus().publish(JsonObject::class.qualifiedName, json)
+        lambda.vertx.eventBus().publish(JsonObject::class.qualifiedName, json)
+    }
+
+    override fun log(message: String) {
+        logger.info(message)
+//        println(message)
     }
 
 }
