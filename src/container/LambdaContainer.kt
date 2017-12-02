@@ -1,8 +1,8 @@
 package container
 
 import general.AlgoFramework
-import general.AlgoState
-import general.spec.IAlgoFramework
+import enumerate.AlgoState
+import spec.IAlgoFramework
 import io.vertx.core.AbstractVerticle
 import io.vertx.core.Handler
 import io.vertx.core.eventbus.Message
@@ -28,12 +28,12 @@ class LambdaContainer(val dispatcher: IDispatcher,
         val logger = LogManager.getLogger(LambdaContainer::class)
     }
 
-    private var algoFramework: IAlgoFramework by Delegates.notNull()
+    private var framework: IAlgoFramework by Delegates.notNull()
     private val setOfWs = mutableSetOf<ServerWebSocket>()
 
     override fun start() {
         super.start()
-        algoFramework = AlgoFramework(this)
+        framework = AlgoFramework(this)
 
         val router = Router.router(vertx)
 
@@ -47,7 +47,7 @@ class LambdaContainer(val dispatcher: IDispatcher,
             setOfWs.forEach {
                 try {
                     it.writeTextMessage(msg)
-                } catch (t : Throwable) {
+                } catch (t: Throwable) {
                     t.printStackTrace()
                 }
             }
@@ -69,7 +69,7 @@ class LambdaContainer(val dispatcher: IDispatcher,
                     sendText("source code received. size = ${code.length}, compiling...")
 
                     loadKotlinAlgo(code)
-                    algoFramework.algo.state = AlgoState.Initialized
+                    framework.algo.state = AlgoState.Initialized
 
                     future.complete("loaded.")
                 } catch (t: Throwable) {
@@ -82,7 +82,7 @@ class LambdaContainer(val dispatcher: IDispatcher,
                 logger.info(result.result())
                 if (result.succeeded()) {
                     sendText("Running performance test")
-                    perfTest(framework = algoFramework)
+                    perfTest(framework)
                     sendText("performance test done")
                 }
             })
@@ -90,11 +90,11 @@ class LambdaContainer(val dispatcher: IDispatcher,
 
         sws.textMessageHandler {
             // Do not expect text stream
-            println("text stream: " + it)
+            logger.info("text stream: " + it)
         }
 
         sws.closeHandler {
-            println("Closing WS connection ... ${sws.remoteAddress()}")
+            logger.info("Closing WS connection ... ${sws.remoteAddress()}")
             setOfWs.remove(sws)
         }
         sws.exceptionHandler {
@@ -112,9 +112,10 @@ class LambdaContainer(val dispatcher: IDispatcher,
     }
 
     private fun loadKotlinAlgo(code: String) {
-        with(algoFramework) {
+        with(framework) {
             try {
-                algo = KotlinAlgoLoader(algoFramework, code)
+                algo = KotlinAlgoLoader(code)
+                algo.init(framework)
 
                 algo.state = AlgoState.Initialized
 

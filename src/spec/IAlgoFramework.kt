@@ -1,4 +1,4 @@
-package general.spec
+package spec
 
 import io.vertx.core.json.JsonObject
 import scheduler.IClock

@@ -1,6 +1,6 @@
-package general.spec
+package spec
 
-import general.AlgoState
+import enumerate.AlgoState
 import org.joda.time.DateTime
 
 interface IAlgo {
@@ -9,4 +9,6 @@ interface IAlgo {
     var state: AlgoState
 
     var handleEvent: (() -> Unit)?
+
+    fun init(framework: IAlgoFramework)
 }

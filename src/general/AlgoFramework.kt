@@ -1,10 +1,10 @@
 package general
 
 import container.LambdaContainer
-import general.spec.IAlgo
-import general.spec.IAlgoFramework
-import general.spec.IExecution
-import general.spec.IPosition
+import spec.IAlgo
+import spec.IAlgoFramework
+import spec.IExecution
+import spec.IPosition
 import io.vertx.core.json.JsonObject
 import org.apache.logging.log4j.LogManager
 import scheduler.IClock
@@ -16,6 +16,7 @@ class AlgoFramework(private val lambda: LambdaContainer) : IAlgoFramework {
     companion object {
         val logger = LogManager.getLogger(AlgoFramework::class)!!
     }
+
     override val clock: IClock
         get() = lambda.clock
 
