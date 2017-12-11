@@ -1,20 +1,16 @@
 package general
 
 import container.LambdaContainer
-import spec.IAlgo
-import spec.IAlgoFramework
-import spec.IExecution
-import spec.IPosition
 import io.vertx.core.json.JsonObject
 import org.apache.logging.log4j.LogManager
 import scheduler.IClock
-import java.util.function.BiConsumer
-import java.util.function.Consumer
+import spec.IAlgo
+import spec.IAlgoFramework
 import kotlin.properties.Delegates
 
 class AlgoFramework(private val lambda: LambdaContainer) : IAlgoFramework {
     companion object {
-        val logger = LogManager.getLogger(AlgoFramework::class)!!
+        private val logger = LogManager.getLogger(AlgoFramework::class)!!
     }
 
     override val clock: IClock
@@ -26,23 +22,23 @@ class AlgoFramework(private val lambda: LambdaContainer) : IAlgoFramework {
 
     }
 
-    override fun subscribePosition(param: JsonObject, consumer: BiConsumer<IAlgoFramework, IPosition>?) {
+    override fun subscribePosition(vararg books: String) {
+
+    }
+
+    override fun subscribeSignals(vararg types: String) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun subscribeOrderExecution(param: JsonObject, consumer: BiConsumer<IAlgoFramework, IExecution>?) {
+    override fun subscribeExecutions() {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun setPeriodic(consumer: Consumer<IAlgoFramework>, delayInMs: Long, intervalInMs: Long) {
+    override fun setPeriodic(eventId: String, delayInMs: Long, intervalInMs: Long) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun setOnce(consumer: Consumer<IAlgoFramework>, delayInMs: Long) {
-//        vertx.setTimer(delayInMs, { consumer.accept(this) })
-    }
-
-    override fun sendMessage(message: Any) {
+    override fun setOnce(eventId: String, delayInMs: Long) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 

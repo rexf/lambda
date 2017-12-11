@@ -90,6 +90,7 @@
         <vertx.version>3.5.0</vertx.version>
         <joda.version>2.9.9</joda.version>
         <apache.log4j.version>2.9.1</apache.log4j.version>
+        <apache.common.version>1.5</apache.common.version>
         <springframework.version>5.0.2.RELEASE</springframework.version>
     </properties>
 
@@ -149,6 +150,11 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
             <version>${springframework.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-csv</artifactId>
+            <version>${apache.common.version}</version>
         </dependency>
 
     </dependencies>

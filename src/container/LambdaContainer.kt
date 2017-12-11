@@ -25,7 +25,7 @@ class LambdaContainer(val dispatcher: IDispatcher,
                       private val httpPort: Int,
                       private val wsPort: Int) : AbstractVerticle() {
     companion object {
-        val logger = LogManager.getLogger(LambdaContainer::class)
+        private val logger = LogManager.getLogger(LambdaContainer::class)!!
     }
 
     private var framework: IAlgoFramework by Delegates.notNull()
@@ -98,7 +98,7 @@ class LambdaContainer(val dispatcher: IDispatcher,
             setOfWs.remove(sws)
         }
         sws.exceptionHandler {
-            println("Error! Removing WS connection ... ${sws.remoteAddress()}")
+            logger.error("Removing WS connection ... ${sws.remoteAddress()}")
             setOfWs.remove(sws)
         }
         setOfWs.add(sws)

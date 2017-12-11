@@ -1,12 +1,13 @@
 package main
 
-import container.FileEventLoader
+import container.CsvEventLoader
 import container.LambdaContainer
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import scheduler.IClock
 import scheduler.RealtimeClock
 import scheduler.SimulationClock
+import spec.IEventLoader
 import thread.Dispatcher
 import thread.IDispatcher
 
@@ -25,8 +26,8 @@ open class AppConfig {
     @Bean(name = ["lambda"])
     open fun lambda(): LambdaContainer = LambdaContainer(dispatcher = dispatcher(), clock = clock(), httpPort = httpPort(), wsPort = wsPort())
 
-    @Bean(name = ["eventLoader"])
-    open fun eventLoader(): FileEventLoader = FileEventLoader()
+    @Bean(name = ["csvEventLoader"])
+    open fun csvEventLoader(): IEventLoader<*> = CsvEventLoader()
 
     @Bean(name = ["httpPort"])
     open fun httpPort(): Int = 8888
