@@ -2,7 +2,7 @@ package general.spec
 
 import org.joda.time.DateTime
 
-interface IMarketData {
+interface IQuote {
 
     val id: String
 
