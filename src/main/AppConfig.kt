@@ -31,7 +31,12 @@ open class AppConfig {
     @Bean(name = ["wsPort"])
     open fun wsPort(): Int = 8889
 
-    @Bean(name = ["events"], initMethod = "init")
-    open fun eventsLoader() = EventsLoaderContainer(replayClock())
+    @Bean(name = ["eventsLoader"])
+    open fun eventsLoader() : EventsLoaderContainer {
+      val el = EventsLoaderContainer(replayClock())
+        el.marketDataFilePath = "test/quotes.txt"
+        el.init()
+        return el
+    }
 
 }

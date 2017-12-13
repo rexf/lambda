@@ -14,7 +14,14 @@ class EventsLoaderContainer(private val clock: IClock) {
         marketDataFilePath?.let {
             load(it, {rec ->
                 // csv record: time, ric, bidQty, bid, ask, askQty
-                val q = Quote(rec[1], rec[2].toLong(), rec[3].toDouble(), rec[4].toDouble(), rec[5].toLong(), DateTime.parse(rec[0]))
+                val q = Quote(
+                        rec[1],
+                        rec[2].toLong(),
+                        rec[3].toDouble(),
+                        rec[4].toDouble(),
+                        rec[5].toLong(),
+                        DateTime.parse(rec[0])
+                )
                 clock.schedule(q.id, {
                 }, q.lastUpdateTime.millis)
                 q
