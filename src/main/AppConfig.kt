@@ -36,6 +36,7 @@ open class AppConfig {
       val el = EventsLoaderContainer(replayClock())
         el.marketDataFilePath = "test/quotes.txt"
         el.init()
+
         return el
     }
 
