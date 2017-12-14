@@ -1,4 +1,4 @@
-package general
+package base.enumerate
 
 enum class AlgoState(val description: String) {
     NoAlgo("No algo loaded."),

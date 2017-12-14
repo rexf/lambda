@@ -1,4 +1,4 @@
-package general
+package base.enumerate
 
 
 enum class FeedType {
