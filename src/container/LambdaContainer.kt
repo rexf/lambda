@@ -1,8 +1,8 @@
 package container
 
-import general.AlgoFramework
-import enumerate.AlgoState
-import spec.IAlgoFramework
+import base.AlgoFramework
+import base.enumerate.AlgoState
+import base.spec.IAlgoFramework
 import io.vertx.core.AbstractVerticle
 import io.vertx.core.Handler
 import io.vertx.core.eventbus.Message
@@ -12,7 +12,7 @@ import io.vertx.ext.web.Router
 import io.vertx.ext.web.RoutingContext
 import kt.KotlinAlgoLoader
 import org.apache.logging.log4j.LogManager
-import scheduler.IClock
+import thread.scheduler.IClock
 import thread.IDispatcher
 import java.nio.charset.Charset
 import java.nio.file.Files

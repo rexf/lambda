@@ -1,4 +1,4 @@
-package annotation
+package base.annotation
 
 @kotlin.annotation.Retention(AnnotationRetention.RUNTIME)
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FILE)

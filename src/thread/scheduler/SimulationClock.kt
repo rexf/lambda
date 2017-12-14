@@ -1,4 +1,4 @@
-package scheduler
+package thread.scheduler
 
 import org.joda.time.DateTime
 import thread.IDispatcher

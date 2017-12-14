@@ -4,11 +4,11 @@ import container.EventsLoaderContainer
 import container.LambdaContainer
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import scheduler.IClock
-import scheduler.RealtimeClock
-import scheduler.SimulationClock
 import thread.Dispatcher
 import thread.IDispatcher
+import thread.scheduler.IClock
+import thread.scheduler.RealtimeClock
+import thread.scheduler.SimulationClock
 
 @Configuration
 open class AppConfig {

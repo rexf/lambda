@@ -1,3 +1,3 @@
-package general.spec
+package base.spec
 
 interface IPosition

@@ -1,8 +1,8 @@
-package template
+package base.template
 
-import enumerate.AlgoState
-import spec.IAlgo
-import spec.IAlgoFramework
+import base.enumerate.AlgoState
+import base.spec.IAlgo
+import base.spec.IAlgoFramework
 import org.joda.time.DateTime
 import java.lang.reflect.Method
 import kotlin.properties.Delegates

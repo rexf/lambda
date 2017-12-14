@@ -1,7 +1,7 @@
 package kt
 
-import template.AbstractAlgo
-import enumerate.AlgoState
+import base.template.AbstractAlgo
+import base.enumerate.AlgoState
 import java.io.File
 import java.net.URL
 import java.net.URLClassLoader

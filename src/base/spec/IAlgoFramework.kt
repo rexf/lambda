@@ -1,6 +1,6 @@
-package spec
+package base.spec
 
-import scheduler.IClock
+import thread.scheduler.IClock
 
 interface IAlgoFramework {
     val clock: IClock

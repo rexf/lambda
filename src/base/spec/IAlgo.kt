@@ -1,6 +1,6 @@
-package spec
+package base.spec
 
-import enumerate.AlgoState
+import base.enumerate.AlgoState
 import org.joda.time.DateTime
 
 interface IAlgo {

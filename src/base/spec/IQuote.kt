@@ -1,4 +1,4 @@
-package general.spec
+package base.spec
 
 import org.joda.time.DateTime
 

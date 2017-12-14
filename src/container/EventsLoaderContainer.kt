@@ -1,10 +1,10 @@
 package container
 
-import general.CsvEventLoader
-import general.Quote
+import base.CsvEventLoader
+import base.Quote
 import org.apache.commons.csv.CSVRecord
 import org.joda.time.DateTime
-import scheduler.IClock
+import thread.scheduler.IClock
 
 class EventsLoaderContainer(private val clock: IClock) {
     var marketDataFilePath: String? = null
@@ -33,7 +33,7 @@ class EventsLoaderContainer(private val clock: IClock) {
         }
     }
 
-    private fun load(path: String, producer: ((CSVRecord)->Unit)) {
+    private fun load(path: String, producer: ((CSVRecord)->Quote)) {
         CsvEventLoader.loadAsList(path, producer)
     }
 

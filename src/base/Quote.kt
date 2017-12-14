@@ -1,6 +1,6 @@
-package general
+package base
 
-import general.spec.IQuote
+import base.spec.IQuote
 import org.joda.time.DateTime
 
 data class Quote(override val id: String,
