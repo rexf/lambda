@@ -1,4 +1,4 @@
-package thread
+package base.thread
 
 import java.util.*
 import java.util.function.Consumer

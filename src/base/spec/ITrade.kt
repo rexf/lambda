@@ -2,9 +2,9 @@ package base.spec
 
 import org.joda.time.DateTime
 
-interface IPosition {
-    val id: String
-    val qty: Long
+interface ITrade {
     val time: DateTime
+    val id: String
+    val prc: Double
+    val qty: Long
 }
-

@@ -1,4 +1,4 @@
-package thread.scheduler
+package base.thread.scheduler
 
 import org.joda.time.DateTime
 import java.util.concurrent.TimeUnit

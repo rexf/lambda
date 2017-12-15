@@ -1,7 +1,7 @@
-package kt
+package base.kt
 
-import base.template.AbstractAlgo
 import base.enumerate.AlgoState
+import base.template.AbstractAlgo
 import java.io.File
 import java.net.URL
 import java.net.URLClassLoader
@@ -32,7 +32,7 @@ class KotlinAlgoLoader : AbstractAlgo {
             if (!exists())
                 mkdirs()
 
-            val algoFile = inpPath + "Algo.kt"
+            val algoFile = inpPath + "Algo.base.kt"
             with(File(algoFile)) {
                 createNewFile()
                 writeText(code, Charset.defaultCharset())

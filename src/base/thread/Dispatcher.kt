@@ -1,4 +1,4 @@
-package thread
+package base.thread
 
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentLinkedDeque
@@ -6,7 +6,7 @@ import java.util.concurrent.Executor
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicInteger
 
-class Dispatcher(private val poolSize: Int = 4) : IDispatcher {
+class Dispatcher(poolSize: Int = 4) : IDispatcher {
     //    private val TASK_POOL_SIZE = poolSize * 1000
     private val executor: Executor = Executors.newWorkStealingPool(poolSize)
     private val executorTaskPool = ConcurrentHashMap<String, TaskQueue>()

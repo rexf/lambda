@@ -1,17 +1,26 @@
-package thread.scheduler
+package base.thread.scheduler
 
+import base.thread.IDispatcher
+import org.apache.logging.log4j.LogManager
 import org.joda.time.DateTime
-import thread.IDispatcher
 import java.util.concurrent.TimeUnit
 
+
 class SimulationClock(private val dispatcher: IDispatcher) : IClock {
+    private val referenceTime = System.currentTimeMillis()
+
+    companion object {
+        private val logger = LogManager.getLogger(SimulationClock::class)!!
+    }
+
+    private data class SimulationEvent(val key: String, val runnable: () -> Unit, val eventTime: Long, val interval: Long = 0, val unit: TimeUnit = TimeUnit.MILLISECONDS)
 
     private val list = sortedSetOf(comparator = compareBy<SimulationEvent> { it.eventTime })
 
-    private var currentTimeInMs: Long = 0
+    var currentTimeInMs: Long = 0
 
     override fun schedule(key: String, runnable: () -> Unit, delay: Long, unit: TimeUnit) {
-        list.add(SimulationEvent(key = key, runnable = runnable, eventTime = convertDelayToFuture(delay, unit), interval = 0, unit = unit))
+        list.add(SimulationEvent(key = key, runnable = runnable, eventTime = convertDelayToFuture(delay, unit), unit = unit))
     }
 
     override fun schedule(key: String, runnable: () -> Unit, delay: Long, interval: Long, unit: TimeUnit) {
@@ -19,12 +28,11 @@ class SimulationClock(private val dispatcher: IDispatcher) : IClock {
     }
 
     override fun schedule(key: String, runnable: () -> Unit, time: DateTime) {
-
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        list.add(SimulationEvent(key = key, runnable = runnable, eventTime = time.millis))
     }
 
     override fun schedule(key: String, runnable: () -> Unit, time: DateTime, interval: Long, intervalUnit: TimeUnit) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        list.add(SimulationEvent(key = key, runnable = runnable, eventTime = time.millis, interval = interval, unit = intervalUnit))
     }
 
     override fun getTime(): DateTime {
@@ -48,6 +56,11 @@ class SimulationClock(private val dispatcher: IDispatcher) : IClock {
         val evnt = list.pollFirst()
         evnt?.let {
             currentTimeInMs = it.eventTime
+
+            if (logger.isDebugEnabled) {
+                logger.debug("SimulationClock is now :${DateTime(currentTimeInMs).toLocalDateTime()}")
+            }
+
             dispatcher.dispatch(it.key, it.runnable)
             if (it.interval > 0) {
                 schedule(it.key, it.runnable, it.interval, it.unit)
@@ -57,4 +70,3 @@ class SimulationClock(private val dispatcher: IDispatcher) : IClock {
 
 }
 
-data class SimulationEvent(val key: String, val runnable: () -> Unit, val eventTime: Long, val interval: Long, val unit: TimeUnit)

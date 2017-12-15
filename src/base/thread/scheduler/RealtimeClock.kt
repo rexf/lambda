@@ -1,7 +1,7 @@
-package thread.scheduler
+package base.thread.scheduler
 
+import base.thread.IDispatcher
 import org.joda.time.DateTime
-import thread.IDispatcher
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 

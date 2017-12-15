@@ -15,9 +15,4 @@ interface IQuote {
     val askQty: Long
 
     val lastUpdateTime: DateTime
-
-    enum class SymbolType {
-        RIC, Other
-    }
-
 }
