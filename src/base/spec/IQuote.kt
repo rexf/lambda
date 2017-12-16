@@ -4,7 +4,7 @@ import org.joda.time.DateTime
 
 interface IQuote {
 
-    val id: String
+    val sym: String
 
     val bidQty: Long
 

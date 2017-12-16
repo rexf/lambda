@@ -10,6 +10,7 @@ import base.thread.scheduler.SimulationClock
 import org.joda.time.DateTime
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import simulator.Exchange
 
 @Configuration
 open class AppConfig {
@@ -40,6 +41,8 @@ open class AppConfig {
 
         return LambdaContainer(dispatcher = dispatcher(), clock = referenceClock(), httpPort = httpPort, wsPort = wsPort)
     }
+    @Bean(name = ["exchange.simulator"])
+    open fun exchangeSimulator() = Exchange(dispatcher = dispatcher(), clock = referenceClock(), scale = 2)
 
     @Bean(name = ["eventsLoader"])
     open fun eventsLoader(): EventsLoaderContainer {

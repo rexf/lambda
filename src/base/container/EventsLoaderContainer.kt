@@ -28,7 +28,7 @@ class EventsLoaderContainer(private val clock: IClock) {
                         rec[6].toLong(),
                         DateTime.parse(rec[0].replace("/", "-") + "T" + rec[1]) // ISO Datetime format
                 )
-                clock.schedule(q.id, {
+                clock.schedule(q.sym, {
                 }, q.lastUpdateTime.millis)
                 q
             }, Quote::class.simpleName!!)
