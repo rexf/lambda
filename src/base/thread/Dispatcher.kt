@@ -10,10 +10,22 @@ import kotlin.properties.Delegates
 
 class Dispatcher(poolSize: Int = 4) : IDispatcher {
     private class Recycler {
+        private val getCount = AtomicInteger(0)
+        private val collectCount = AtomicInteger(0)
         private val q = Queues.newArrayDeque<RecyclableTask>()!!
-        fun get(tq: TaskQueue, exe: Executor, runnable: () -> Unit): RecyclableTask = (q.poll() ?: RecyclableTask()).init(tq, exe, runnable, this)
+        fun get(tq: TaskQueue, exe: Executor, runnable: () -> Unit): RecyclableTask {
+            getCount.incrementAndGet()
+            return (q.poll() ?: RecyclableTask()).init(tq, exe, runnable, this)
+        }
 
-        fun collect(task: RecyclableTask): Boolean = q.add(task)
+        fun collect(task: RecyclableTask): Boolean {
+            collectCount.incrementAndGet()
+            return q.add(task)
+        }
+
+        override fun toString(): String {
+            return "Recycler(get=$getCount, collect=$collectCount, q.size=${q.size})"
+        }
     }
 
     private class TaskQueue(private val executor: Executor, private val recycler: Recycler) {
@@ -33,6 +45,10 @@ class Dispatcher(poolSize: Int = 4) : IDispatcher {
 
         fun decrementAndGet(): Int {
             return counter.decrementAndGet()
+        }
+
+        override fun toString(): String {
+            return "TaskQueue(pending=${queue.size})"
         }
     }
 
@@ -73,6 +89,10 @@ class Dispatcher(poolSize: Int = 4) : IDispatcher {
 
     override fun dispatch(key: String, runnable: () -> Unit) {
         executorTaskPool.computeIfAbsent(key, { _ -> TaskQueue(executor, recyler) }).add(runnable)
+    }
+
+    override fun toString(): String {
+        return "pool=$executorTaskPool, recycler=$recyler"
     }
 
 }

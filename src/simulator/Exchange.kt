@@ -1,11 +1,11 @@
 package simulator
 
-import base.Order
+import base.Execution
+import base.spec.IExecution
 import base.spec.IOrder
-import base.thread.Dispatcher
 import base.thread.IDispatcher
 import base.thread.scheduler.IClock
-import base.thread.scheduler.RealtimeClock
+import org.jetbrains.kotlin.backend.common.pop
 import java.math.RoundingMode
 
 class Exchange {
@@ -13,18 +13,61 @@ class Exchange {
         operator fun plusAssign(order: IOrder) {
             orders.add(order)
         }
+
+        operator fun iterator() = orders.iterator()
+
+        fun cleanFilled() {
+            while (orders.isNotEmpty() && orders[0].remQty() <= 0) {
+                println("${orders.pop()} is fully filled.")
+            }
+        }
+
+        fun isNotEmpty() = orders.isNotEmpty()
     }
+
     private data class PriceLists(private val scale: Int, private val asc: Boolean, private val prcMap: MutableMap<Double, PriceList> = mutableMapOf()) {
         operator fun get(prc: Double): PriceList {
             val rounded = prc.toBigDecimal().setScale(scale, RoundingMode.HALF_UP).toDouble()
             return prcMap.getOrPut(rounded, { PriceList() })
         }
 
-        fun cross(order: IOrder): IOrder {
-            for (p in prcMap.keys.sorted()) {
-                println(p)
+        fun cross(order: IOrder): IOrder? {
+            val prcList = if (asc) prcMap.keys.sorted() else prcMap.keys.sortedDescending()
+            var remQty = order.remQty()
+
+            val factor = if (asc) 1 else -1
+            val tmpOrdPrc = factor * order.prc
+            for (p in prcList) {
+                val tmpQuePrc = factor * p
+
+                if (remQty <= 0 || tmpOrdPrc < tmpQuePrc) {
+                    break
+                }
+
+                val prcList = prcMap[p]
+
+                if (null != prcList && prcList.isNotEmpty()) {
+                    for (o in prcList) {
+                        if (remQty <= 0) {
+                            break
+                        }
+
+                        println("canCross")
+                        val targetQty = Math.min(remQty, o.qty)
+                        o.fills.add(Execution(o.sym, p, targetQty))
+                        order.fills.add(Execution(o.sym, p, targetQty))
+
+                        remQty = order.remQty()
+                    }
+                    prcList.cleanFilled()
+                }
             }
-            return order
+
+            if (order.remQty() > 0) {
+                return order
+            }
+
+            return null
         }
     }
 
@@ -48,24 +91,24 @@ class Exchange {
         this.orderBooks = OrderBooks(scale)
     }
 
-    fun crossOrAdd(order: IOrder) {
-        var remainder: IOrder?
-        remainder = orderBooks[order.sym][order.side.opposite()].cross(order)
-        remainder?.let {
-            orderBooks[it.sym][it.side][it.prc] += it
-        }
-        print(orderBooks)
+    fun onNewOrder(order: IOrder) {
+        // TODO: register sender address
 
+        dispatcher.dispatch(order.sym, {
+            var remainder = orderBooks[order.sym][order.side.opposite()].cross(order)
+            remainder?.let {
+                orderBooks[it.sym][it.side][it.prc] += it
+            }
+        })
 
     }
-}
 
+    fun onFill(execution: IExecution) {
 
-fun main(args: Array<String>) {
-    val d = Dispatcher()
-    val e = Exchange(dispatcher = d, clock = RealtimeClock(d), scale = 2)
-    e.crossOrAdd(Order("0005.HK", IOrder.Side.Buy, 77.1, 1000))
-    e.crossOrAdd(Order("0005.HK", IOrder.Side.Buy, 77.2, 1000))
-    e.crossOrAdd(Order("0005.HK", IOrder.Side.Sell, 77.3, 1000))
-    e.crossOrAdd(Order("0005.HK", IOrder.Side.Sell, 77.1, 100))
+        dispatcher.dispatch(execution.sym, {
+            // TODO: send back to sender address
+            println(execution)
+        })
+
+    }
 }

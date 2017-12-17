@@ -15,4 +15,9 @@ interface IOrder {
     val side: Side
     val prc: Double
     val qty: Long
+
+    val fills: MutableList<IExecution>
+    val onResponse: (IExecution)->Unit
+
+    fun remQty() : Long
 }

@@ -45,8 +45,3 @@ class EventsLoaderContainer(private val clock: IClock) {
 
 
 }
-
-fun main(args: Array<String>) {
-    val d = DateTime.parse("2017-12-12T09:31:45.123")
-    println(d.millis)
-}
