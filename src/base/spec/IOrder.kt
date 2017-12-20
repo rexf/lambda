@@ -1,9 +1,11 @@
 package base.spec
 
 interface IOrder {
+
     enum class Side {
         Buy, Sell;
-        fun opposite() : Side {
+
+        fun opposite(): Side {
             if (Buy == this) {
                 return Sell
             }
@@ -11,13 +13,18 @@ interface IOrder {
         }
     }
 
-    val sym: String
+    val symbol: String
     val side: Side
     val prc: Double
     val qty: Long
+    val orderId: String
 
     val fills: MutableList<IExecution>
-    val onResponse: (IExecution)->Unit
 
-    fun remQty() : Long
+    val response: IOrderResponse
+    val action: IOrderAction
+    val outbound: IOutbound
+
+    fun remQty(): Long
+    fun clone(): IOrder
 }

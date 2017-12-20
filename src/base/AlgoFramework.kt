@@ -1,24 +1,27 @@
 package base
 
 import base.container.LambdaContainer
-import base.spec.IAlgo
-import base.spec.IAlgoFramework
+import base.spec.*
 import base.thread.scheduler.IClock
 import io.vertx.core.json.JsonObject
 import org.apache.logging.log4j.LogManager
+import simulator.Exchange
 import kotlin.properties.Delegates
 
 class AlgoFramework(private val lambda: LambdaContainer) : IAlgoFramework {
+
     companion object {
         private val logger = LogManager.getLogger(AlgoFramework::class)!!
     }
+
+    val outbound = Exchange(lambda.dispatcher, lambda.clock, 2)
 
     override val clock: IClock
         get() = lambda.clock
 
     override var algo: IAlgo by Delegates.notNull()
 
-    override fun subscribeMarketData(vararg rics: String) {
+    override fun subscribeMarketData(vararg symbols: String) {
 
     }
 
@@ -52,6 +55,10 @@ class AlgoFramework(private val lambda: LambdaContainer) : IAlgoFramework {
     override fun log(message: String) {
         logger.info(message)
 //        println(message)
+    }
+
+    override fun prepareOrder(symbol: String, side: IOrder.Side, prc: Double, qty: Long): IOrder {
+        return Order(symbol, side, prc, qty, outbound)
     }
 
 }

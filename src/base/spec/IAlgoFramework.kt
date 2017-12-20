@@ -7,7 +7,7 @@ interface IAlgoFramework {
     val clock: IClock
     var algo: IAlgo
 
-    fun subscribeMarketData(vararg rics: String)
+    fun subscribeMarketData(vararg symbols: String)
     fun subscribePosition(vararg books: String)
     fun subscribeSignals(vararg types: String)
     fun subscribeExecutions()
@@ -16,5 +16,6 @@ interface IAlgoFramework {
     fun setOnce(eventId: String, delayInMs: Long)
 
     fun sendText(message: String)
+    fun prepareOrder(symbol: String, side: IOrder.Side, prc: Double, qty: Long) : IOrder
     fun log(message: String)
 }

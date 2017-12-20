@@ -41,6 +41,7 @@ open class AppConfig {
 
         return LambdaContainer(dispatcher = dispatcher(), clock = referenceClock(), httpPort = httpPort, wsPort = wsPort)
     }
+
     @Bean(name = ["exchange.simulator"])
     open fun exchangeSimulator() = Exchange(dispatcher = dispatcher(), clock = referenceClock(), scale = 2)
 

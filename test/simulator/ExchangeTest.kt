@@ -12,9 +12,11 @@ internal class ExchangeTest {
     fun crossOrAdd() {
         val d = Dispatcher()
         val e = Exchange(dispatcher = d, clock = RealtimeClock(d), scale = 2)
-        e.onNewOrder(Order("0005.HK", IOrder.Side.Buy, 77.1, 1000, {println(it)}))
-        e.onNewOrder(Order("0005.HK", IOrder.Side.Buy, 77.2, 1000, {println(it)}))
-        e.onNewOrder(Order("0005.HK", IOrder.Side.Sell, 77.3, 1000, {println(it)}))
-        e.onNewOrder(Order("0005.HK", IOrder.Side.Sell, 77.1, 100, { println(it)}))
+        Order("0005.HK", IOrder.Side.Buy, 77.1, 1000, e).action.submit()
+        Order("0005.HK", IOrder.Side.Buy, 77.2, 1000, e).action.submit()
+        Order("0005.HK", IOrder.Side.Sell, 77.3, 1000, e).action.submit()
+        Order("0005.HK", IOrder.Side.Sell, 77.1, 2000, e).action.submit()
+
+        Thread.sleep(2000L)
     }
 }
