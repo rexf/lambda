@@ -40,20 +40,20 @@ class Exchange(private val dispatcher: IDispatcher, private val clock: IClock, s
         private fun map() = prcMap.filter { (_, q) -> q.isNotEmpty() }
 
         fun cross(order: IOrder): IOrder? {
-            val m = map()
-            val prcList = if (asc) m.keys.sorted() else m.keys.sortedDescending()
+            val nonEmptyMap = map()
+            val prcLists = if (asc) nonEmptyMap.keys.sorted() else nonEmptyMap.keys.sortedDescending()
             var remQty = order.remQty()
 
             val factor = if (asc) 1 else -1
             val tmpOrdPrc = factor * order.prc
-            for (p in prcList) {
+            for (p in prcLists) {
                 val tmpQuePrc = factor * p
 
                 if (remQty <= 0 || tmpOrdPrc < tmpQuePrc) {
                     break
                 }
 
-                val prcList = m[p]
+                val prcList = prcMap[p]
 
                 if (null != prcList && prcList.isNotEmpty()) {
                     for (o in prcList) {
