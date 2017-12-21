@@ -1,0 +1,43 @@
+<?xml version = "1.0" encoding = "UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+
+    <bean id="dispatcher" class="base.thread.Dispatcher"/>
+    <bean id="realtimeClock" class="base.thread.scheduler.RealtimeClock">
+        <constructor-arg ref="dispatcher"/>
+    </bean>
+
+    <bean id="replayClock" class="base.thread.scheduler.SimulationClock">
+        <constructor-arg ref="dispatcher"/>
+        <constructor-arg value="6"/>
+        <constructor-arg value="0"/>
+    </bean>
+
+    <alias name="replayClock" alias="referenceClock"/>
+
+
+    <bean id="lambda" class="base.container.LambdaContainer">
+        <constructor-arg ref="dispatcher"/>
+        <constructor-arg ref="referenceClock"/>
+        <constructor-arg value="8888"/>
+        <constructor-arg value="8889"/>
+    </bean>
+    <bean id="exchange.simulator" class="simulator.Exchange">
+        <constructor-arg ref="dispatcher"/>
+        <constructor-arg ref="referenceClock"/>
+        <constructor-arg value="SIMULATOR"/>
+        <constructor-arg value="2"/>
+    </bean>
+
+    <util:map id="outbound.map" >
+        <entry key="SIMULATOR" value-ref="exchange.simulator" />
+    </util:map>
+
+    <bean id="events.loader" class="base.container.EventsLoaderContainer" init-method="init">
+        <constructor-arg ref="referenceClock"/>
+        <property name="marketDataFilePath" value="testdata/quotes.txt"/>
+    </bean>
+
+</beans>

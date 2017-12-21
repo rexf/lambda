@@ -6,18 +6,23 @@ import org.joda.time.DateTime
 import java.util.concurrent.TimeUnit
 
 
-class SimulationClock(private val dispatcher: IDispatcher) : IClock {
-    private val referenceTime = System.currentTimeMillis()
+class SimulationClock(private val dispatcher: IDispatcher, private val startHour: Int = 6, private val startMin: Int = 0) : IClock {
+    private data class SimulationEvent(val key: String, val runnable: () -> Unit, val eventTime: Long, val interval: Long = 0, val unit: TimeUnit = TimeUnit.MILLISECONDS)
 
     companion object {
         private val logger = LogManager.getLogger(SimulationClock::class)!!
     }
 
-    private data class SimulationEvent(val key: String, val runnable: () -> Unit, val eventTime: Long, val interval: Long = 0, val unit: TimeUnit = TimeUnit.MILLISECONDS)
-
     private val list = sortedSetOf(comparator = compareBy<SimulationEvent> { it.eventTime })
+    private val referenceTime = System.currentTimeMillis()
 
     var currentTimeInMs: Long = 0
+    fun init() {
+        val dt = DateTime.now()
+        currentTimeInMs = DateTime(dt.getYear(), dt.getMonthOfYear(), dt.getDayOfMonth(), startHour, startMin, 0, dt.getZone()).millis
+    }
+
+
 
     override fun schedule(key: String, runnable: () -> Unit, delay: Long, unit: TimeUnit) {
         list.add(SimulationEvent(key = key, runnable = runnable, eventTime = convertDelayToFuture(delay, unit), unit = unit))

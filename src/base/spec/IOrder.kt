@@ -17,10 +17,10 @@ interface IOrder {
     val side: Side
     val prc: Double
     val qty: Long
+    val destination: String
     val orderId: String
 
     val fills: MutableList<IExecution>
-
     val response: IOrderResponse
     val action: IOrderAction
     val outbound: IOutbound

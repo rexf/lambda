@@ -6,19 +6,26 @@ import io.vertx.core.AbstractVerticle
 import io.vertx.core.DeploymentOptions
 import io.vertx.core.Vertx
 import org.apache.logging.log4j.LogManager
-import org.springframework.context.annotation.AnnotationConfigApplicationContext
+import org.springframework.context.support.FileSystemXmlApplicationContext
+
+val logger = LogManager.getLogger("main")!!
+class AppMain {
+    companion object {
+        val context = FileSystemXmlApplicationContext("resources/config.xml")
+        init {
+            if (context.containsBean("referenceClock")) {
+                LoggerClock.setClock(context.getBean("referenceClock", IClock::class.java))
+                logger.info("Reference clock loaded.")
+            }
+        }
+    }
+}
 
 fun main(args: Array<String>) {
-    val logger = LogManager.getLogger("main")!!
     logger.info("Initializing beans...")
 
     val vertx = Vertx.vertx()
-    val ctx = AnnotationConfigApplicationContext(AppConfig::class.java)
-    if (ctx.containsBean("referenceClock")) {
-        LoggerClock.setClock(ctx.getBean("referenceClock", IClock::class.java))
-        logger.info("Reference clock loaded.")
-    }
-
+    val ctx = AppMain.context
     val beans = ctx.getBeansOfType(AbstractVerticle::class.java)
 
     val opts = DeploymentOptions()
@@ -28,4 +35,3 @@ fun main(args: Array<String>) {
         vertx.deployVerticle(v, opts)
     }
 }
-

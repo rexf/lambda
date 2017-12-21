@@ -14,6 +14,7 @@ import io.vertx.core.json.JsonObject
 import io.vertx.ext.web.Router
 import io.vertx.ext.web.RoutingContext
 import org.apache.logging.log4j.LogManager
+import org.springframework.beans.factory.annotation.Autowired
 import java.nio.charset.Charset
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -27,12 +28,12 @@ class LambdaContainer(val dispatcher: IDispatcher,
         private val logger = LogManager.getLogger(LambdaContainer::class)!!
     }
 
-    private var framework: IAlgoFramework by Delegates.notNull()
+    private var algoFramework: IAlgoFramework by Delegates.notNull()
     private val setOfWs = mutableSetOf<ServerWebSocket>()
 
     override fun start() {
         super.start()
-        framework = AlgoFramework(this)
+        algoFramework = AlgoFramework(this)
 
         val router = Router.router(vertx)
 
@@ -68,7 +69,7 @@ class LambdaContainer(val dispatcher: IDispatcher,
                     sendText("source code received. size = ${code.length}, compiling...")
 
                     loadKotlinAlgo(code)
-                    framework.algo.state = AlgoState.Initialized
+                    algoFramework.algo.state = AlgoState.Initialized
 
                     future.complete("loaded.")
                 } catch (t: Throwable) {
@@ -81,7 +82,7 @@ class LambdaContainer(val dispatcher: IDispatcher,
                 logger.info(result.result())
                 if (result.succeeded()) {
                     sendText("Running performance test")
-                    perfTest(framework)
+                    perfTest(algoFramework)
                     sendText("performance test done")
                 }
             })
@@ -111,10 +112,10 @@ class LambdaContainer(val dispatcher: IDispatcher,
     }
 
     private fun loadKotlinAlgo(code: String) {
-        with(framework) {
+        with(algoFramework) {
             try {
                 algo = KotlinAlgoLoader(code)
-                algo.init(framework)
+                algo.init(algoFramework)
 
                 algo.state = AlgoState.Initialized
 

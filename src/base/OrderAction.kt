@@ -16,14 +16,16 @@ class OrderAction(private val outbound: IOutbound, private val order: IOrder) : 
     }
 
     override fun cancel() {
-        if (!cancelSent) {
+        if (!cancelSent && submitSent) {
             outbound.onCancel(order)
             cancelSent = true
         }
     }
 
     override fun amend(prc: Double, qty: Long) {
-        outbound.onAmend(order, prc, qty)
+        if (!cancelSent && submitSent) {
+            outbound.onAmend(order, prc, qty)
+        }
     }
 
     override fun forceCancel() {

@@ -16,6 +16,6 @@ interface IAlgoFramework {
     fun setOnce(eventId: String, delayInMs: Long)
 
     fun sendText(message: String)
-    fun prepareOrder(symbol: String, side: IOrder.Side, prc: Double, qty: Long) : IOrder
+    fun prepareOrder(symbol: String, side: IOrder.Side, prc: Double, qty: Long, destination: String) : IOrder
     fun log(message: String)
 }

@@ -11,7 +11,7 @@ class OrderResponse(private val order: IOrder) : IOrderResponse {
     }
 
     override var onAck: ((IOrder) -> Unit) = {
-            logger.info("OrderAcked: $it.")
+        logger.info("OrderAcked: $it.")
     }
 
     override var onFill: ((IExecution) -> Unit) = {
@@ -24,25 +24,12 @@ class OrderResponse(private val order: IOrder) : IOrderResponse {
 
     override var onReject: ((order: IOrder, reason: String) -> Unit) = { o, r ->
         logger.info("OrderRej: ${o.orderId} reason: $r")
-
     }
 
-
-    override fun ack() {
-        onAck(order)
-    }
-
-    override fun fill(execution: IExecution) {
-        onFill(execution)
-    }
-
-    override fun cancel() {
-        onCancel(order)
-    }
-
-    override fun reject(reason: String) {
-        onReject(order, reason)
-    }
+    override fun ack() = onAck(order)
+    override fun fill(execution: IExecution) = onFill(execution)
+    override fun cancel() = onCancel(order)
+    override fun reject(reason: String) = onReject(order, reason)
 
 
 }

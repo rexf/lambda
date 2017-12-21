@@ -9,7 +9,9 @@ import base.thread.scheduler.IClock
 import org.jetbrains.kotlin.backend.common.pop
 import java.math.RoundingMode
 
-class Exchange(private val dispatcher: IDispatcher, private val clock: IClock, scale: Int) : IOutbound {
+class Exchange(private val dispatcher: IDispatcher, private val clock: IClock,
+               private val name: String, scale: Int) : IOutbound {
+
     private data class PriceList(private val orders: MutableList<IOrder> = mutableListOf()) {
         operator fun plusAssign(order: IOrder?) {
             if (null != order) {
@@ -37,14 +39,15 @@ class Exchange(private val dispatcher: IDispatcher, private val clock: IClock, s
             return prcMap.getOrPut(rounded, { PriceList() })
         }
 
-        private fun map() = prcMap.filter { (_, q) -> q.isNotEmpty() }
+        private fun nonEmptyMap() = prcMap.filter { (_, q) -> q.isNotEmpty() }
 
         fun cross(order: IOrder): IOrder? {
-            val nonEmptyMap = map()
-            val prcLists = if (asc) nonEmptyMap.keys.sorted() else nonEmptyMap.keys.sortedDescending()
+            val nonEmptyMap = nonEmptyMap()
+            val (prcLists, factor) = if (asc) Pair(nonEmptyMap.keys.sorted(), 1)
+            else Pair(nonEmptyMap.keys.sortedDescending(), -1)
+
             var remQty = order.remQty()
 
-            val factor = if (asc) 1 else -1
             val tmpOrdPrc = factor * order.prc
             for (p in prcLists) {
                 val tmpQuePrc = factor * p
@@ -61,7 +64,6 @@ class Exchange(private val dispatcher: IDispatcher, private val clock: IClock, s
                             break
                         }
 
-                        println("canCross")
                         val targetQty = Math.min(remQty, o.qty)
 
                         val e1 = Execution(o, p, targetQty)
@@ -101,6 +103,10 @@ class Exchange(private val dispatcher: IDispatcher, private val clock: IClock, s
 
 
     private val orderBooks: OrderBooks
+    override fun getName(): String = name
+    override fun toString(): String {
+        return "Exchange@${Exchange::class.simpleName}(name=$name)"
+    }
 
     override fun onNewOrder(order: IOrder) {
         dispatcher.dispatch(order.symbol, {
@@ -141,7 +147,7 @@ class Exchange(private val dispatcher: IDispatcher, private val clock: IClock, s
 
     }
 
-    fun onFill(ex1: IExecution, ex2: IExecution) {
+    private fun onFill(ex1: IExecution, ex2: IExecution) {
         dispatcher.dispatch(ex1.order.symbol, {
             ex1.order.response.onFill(ex1)
             ex2.order.response.onFill(ex2)
