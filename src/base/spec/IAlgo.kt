@@ -9,6 +9,7 @@ interface IAlgo {
     var state: AlgoState
 
     var handleEvent: (() -> Unit)?
+    var handleTimerEvent: ((String) -> Unit)?
 
     fun init(framework: IAlgoFramework)
 }

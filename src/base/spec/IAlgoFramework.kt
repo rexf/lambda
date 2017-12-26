@@ -1,6 +1,7 @@
 package base.spec
 
 import base.thread.scheduler.IClock
+import org.joda.time.DateTime
 
 
 interface IAlgoFramework {
@@ -13,7 +14,9 @@ interface IAlgoFramework {
     fun subscribeExecutions()
 
     fun setPeriodic(eventId: String, delayInMs: Long, intervalInMs: Long)
+    fun setPeriodic(eventId: String, datetime: DateTime, intervalInMs: Long)
     fun setOnce(eventId: String, delayInMs: Long)
+    fun setOnce(eventId: String, datetime: DateTime)
 
     fun sendText(message: String)
     fun prepareOrder(symbol: String, side: IOrder.Side, prc: Double, qty: Long, destination: String) : IOrder

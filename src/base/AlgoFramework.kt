@@ -6,6 +6,7 @@ import base.thread.scheduler.IClock
 import io.vertx.core.json.JsonObject
 import main.AppMain
 import org.apache.logging.log4j.LogManager
+import org.joda.time.DateTime
 import simulator.Exchange
 import kotlin.properties.Delegates
 
@@ -18,14 +19,14 @@ class AlgoFramework(private val lambda: LambdaContainer) : IAlgoFramework {
     override val clock: IClock = lambda.clock
     override var algo: IAlgo by Delegates.notNull()
 
-    val marketDataService = AppMain.context.getBean("marketdata.service", MarketDataService::class.java)
 
     override fun subscribeMarketData(vararg symbols: String) {
+        AppMain.marketDataService
 
     }
 
     override fun subscribePosition(vararg books: String) {
-
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     override fun subscribeSignals(vararg types: String) {
@@ -37,13 +38,26 @@ class AlgoFramework(private val lambda: LambdaContainer) : IAlgoFramework {
     }
 
     override fun setPeriodic(eventId: String, delayInMs: Long, intervalInMs: Long) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        lambda.clock.schedule(eventId, {
+            algo.handleTimerEvent?.invoke(eventId)
+        }, delayInMs, intervalInMs )
+    }
+    override fun setPeriodic(eventId: String, datetime: DateTime, intervalInMs: Long) {
+        lambda.clock.schedule(eventId, {
+            algo.handleTimerEvent?.invoke(eventId)
+        }, datetime, intervalInMs )
     }
 
     override fun setOnce(eventId: String, delayInMs: Long) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        lambda.clock.schedule(eventId, {
+            algo.handleTimerEvent?.invoke(eventId)
+        }, delayInMs)
     }
-
+    override fun setOnce(eventId: String, datetime: DateTime) {
+        lambda.clock.schedule(eventId, {
+            algo.handleTimerEvent?.invoke(eventId)
+        }, datetime)
+    }
 
     override fun sendText(message: String) {
         val json = JsonObject()
@@ -53,7 +67,6 @@ class AlgoFramework(private val lambda: LambdaContainer) : IAlgoFramework {
 
     override fun log(message: String) {
         logger.info(message)
-//        println(message)
     }
 
     override fun prepareOrder(symbol: String, side: IOrder.Side, prc: Double, qty: Long, destination: String): IOrder {

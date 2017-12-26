@@ -17,14 +17,9 @@ data class Order(override val symbol: String,
         OrderAction(outbound, this@Order)
     }
 
-    override val response: IOrderResponse by lazy {
-        OrderResponse(this@Order)
-    }
+    override val response : IOrderResponse = OrderResponse(this@Order)
 
-    override val outbound: IOutbound by lazy {
-        val outMap = AppMain.context.getBean("outbound.map", Map::class.java) as Map<String, IOutbound>
-        outMap[destination]!!
-    }
+    override val outbound = AppMain.outboundMap[destination]!!
 
     override val fills: MutableList<IExecution> = mutableListOf()
 
