@@ -85,7 +85,7 @@
     </build>
 
     <properties>
-        <kotlin.version>1.2.0</kotlin.version>
+        <kotlin.version>1.2.21</kotlin.version>
         <guava.version>23.5-jre</guava.version>
         <vertx.version>3.5.0</vertx.version>
         <joda.version>2.9.9</joda.version>
