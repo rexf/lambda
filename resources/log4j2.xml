@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<Configuration status="info">
+<Configuration status="debug">
     <Appenders>
         <Console name="Console" target="SYSTEM_OUT">
-            <PatternLayout pattern="%d{YYYY-MM-dd HH:mm:ss.SSS} - %msg%n"/>
+            <PatternLayout pattern="%d{YYYY-MM-dd HH:mm:ss.SSS} %ctx %-5level {%F:%L} %msg%n"/>
         </Console>
     </Appenders>
 
 
     <Loggers>
-        <Root level="info">
+        <Root level="debug">
             <AppenderRef ref="Console"/>
         </Root>
         <Logger name="org.springframework.*" level="INFO"/>

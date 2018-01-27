@@ -1,19 +1,24 @@
 package base.spec
 
-import thread.scheduler.IClock
+import base.thread.scheduler.IClock
+import org.joda.time.DateTime
+
 
 interface IAlgoFramework {
     val clock: IClock
     var algo: IAlgo
 
-    fun subscribeMarketData(vararg rics: String)
+    fun subscribeMarketData(vararg symbols: String)
     fun subscribePosition(vararg books: String)
     fun subscribeSignals(vararg types: String)
     fun subscribeExecutions()
 
     fun setPeriodic(eventId: String, delayInMs: Long, intervalInMs: Long)
+    fun setPeriodic(eventId: String, datetime: DateTime, intervalInMs: Long)
     fun setOnce(eventId: String, delayInMs: Long)
+    fun setOnce(eventId: String, datetime: DateTime)
 
     fun sendText(message: String)
+    fun prepareOrder(symbol: String, side: IOrder.Side, prc: Double, qty: Long, destination: String) : IOrder
     fun log(message: String)
 }

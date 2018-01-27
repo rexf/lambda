@@ -12,6 +12,7 @@ abstract class AbstractAlgo : IAlgo {
     override val lastUpdated = DateTime()
     override lateinit var state: AlgoState
     override var handleEvent: (() -> Unit)? = null
+    override var handleTimerEvent: ((String) -> Unit)? = null
     protected var mappedFunction: Map<String, Method> by Delegates.notNull()
 
     override fun init(framework: IAlgoFramework) {

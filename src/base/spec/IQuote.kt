@@ -4,7 +4,7 @@ import org.joda.time.DateTime
 
 interface IQuote {
 
-    val id: String
+    val sym: String
 
     val bidQty: Long
 
@@ -15,9 +15,4 @@ interface IQuote {
     val askQty: Long
 
     val lastUpdateTime: DateTime
-
-    enum class SymbolType {
-        RIC, Other
-    }
-
 }

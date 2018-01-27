@@ -20,7 +20,7 @@ class CsvEventLoader {
             run parserLoop@ {
                 parser.forEach {
                     try {
-                        val r = producer.invoke(it)
+                        val r = producer(it)
                         records.add(r)
                     } catch (t: Throwable) {
                         t.printStackTrace()
@@ -46,7 +46,7 @@ class CsvEventLoader {
             run parserLoop@ {
                 parser.forEach {
                     try {
-                        val (k, v) = producer.invoke(it)
+                        val (k, v) = producer(it)
                         records.put(k, v)
                     } catch (t: Throwable) {
                         t.printStackTrace()
